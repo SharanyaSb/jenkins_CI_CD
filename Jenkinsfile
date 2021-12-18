@@ -57,6 +57,32 @@ pipeline{
 				echo "Test"
 			}
 		}
+
+		stage('Package'){
+			steps{
+				sh "mvn package -DskipTests"
+				echo "Test"
+			}
+		}
+
+		stage('Build docker image'){
+			steps{
+				//"docker build -t sharanyasb/currency-exchange-devops:$env.BUILD_TAG"
+				script{
+					dockerImage = docker.build("sharanyasb/currency-exchange-devops:${env.BUILD_TAG}")
+				}
+			}
+		}
+		stage('Push docker image'){
+			steps{
+				script{
+					docker.withRegistry('', 'dockerhub'){
+					dockerImage.push();
+					dockerImage.push('latest');
+					}
+				}
+			}
+		}
 	}
 
 	post{
